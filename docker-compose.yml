@@ -3,17 +3,16 @@ version: "3.9"
 services:
   # Backend service
   backend:
+#    network_mode: "host"
     build:
       context: ./server
       dockerfile: Dockerfile
       args:
         - PORT=${BACKEND_PORT:-5000}
     ports:
-      - "${BACKEND_PORT:-5000}:${BACKEND_PORT:-5000}"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     env_file:
-      - ../Project_1_WAD/.env
-
-
+      - ../Project_WAD_1/.env
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://mongo:27017/${MONGO_DB_NAME:-project1}
@@ -34,7 +33,7 @@ services:
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      - VITE_API_ENDPOINT=http://localhost:${BACKEND_PORT:-5000}/api
+      - VITE_API_ENDPOINT=http://backend:${BACKEND_PORT:-5000}/api
     volumes:
       - ./app:/usr/src/app
       - /usr/src/app/node_modules
