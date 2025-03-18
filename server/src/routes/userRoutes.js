@@ -1,17 +1,17 @@
 const express = require("express");
 const {
-    registerUser,
-    loginUser,
     getUserProfile,
-    test
+    updateUserProfile,
 } = require("../controllers/userController");
 const {protect} = require("../middleware/authMiddleware");
+const {upload} = require("../middleware/uploadMiddleware"); //
+
 
 const router = express.Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.get("/profile", protect, getUserProfile);
-router.get("/test", test);
+// Protected routes
+router.get('/profile', protect, getUserProfile);
+router.put('/profile', protect, upload.single('avatar'), updateUserProfile);
+
 
 module.exports = router;

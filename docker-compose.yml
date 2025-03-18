@@ -3,7 +3,7 @@ version: "3.9"
 services:
   # Backend service
   backend:
-#    network_mode: "host"
+    #    network_mode: "host"
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -12,7 +12,7 @@ services:
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     env_file:
-      - ../Project_WAD_1/.env
+      - .env
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://mongo:27017/${MONGO_DB_NAME:-project1}
@@ -21,6 +21,8 @@ services:
     volumes:
       - ./server:/usr/src/app
       - /usr/src/app/node_modules
+      - ./server/uploads:/usr/src/app/src/uploads
+
     restart: unless-stopped
     networks:
       - app-network
@@ -48,7 +50,7 @@ services:
     image: mongo:latest
     container_name: mongo
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
     restart: unless-stopped

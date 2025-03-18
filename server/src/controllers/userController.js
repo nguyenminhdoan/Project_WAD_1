@@ -1,73 +1,83 @@
 const User = require("../models/userModel");
-const jwt = require("jsonwebtoken");
+const fs = require('fs');
+const path = require('path');
+const {uploadsDir} = require('../middleware/uploadMiddleware');
 
-// Generate token
-const generateToken = (id) => {
-    return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: "1h"});
-};
-
-// Register user
-const registerUser = async (req, res) => {
-    const {name, email, password} = req.body;
-
-    if (!name || !email || !password) {
-        return res.status(400).json({message: "All fields are required"});
-    }
-
-    const userExists = await User.findOne({email});
-    if (userExists) {
-        return res.status(400).json({message: "User already exists"});
-    }
-    const token = generateToken(email);
-    const user = await User.create({name, email, password, token});
-
-    if (user) {
-        res.status(201).json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            token,
-        });
-    } else {
-        res.status(400).json({message: "Invalid user data"});
-    }
-};
-
-// Authenticate user
-const loginUser = async (req, res) => {
-    const {email, password} = req.body;
-
-    const user = await User.findOne({email});
-    if (user && (await user.matchPassword(password))) {
-        res.json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user.id),
-        });
-    } else {
-        res.status(401).json({message: "Invalid credentials"});
-    }
-};
 
 // Get user profile
 const getUserProfile = async (req, res) => {
-    const user = await User.findOne({email: req.user.email});
+    const user = await User.findById(req.user.id);
 
     if (user) {
         res.json({
             _id: user.id,
             name: user.name,
             email: user.email,
-            isAdmin: user.isAdmin,
+            role: user.role,
+            avatar: user.avatar,
         });
     } else {
         res.status(404).json({message: "User not found"});
     }
 };
 
+// Update user profile
+const updateUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+
+        // Update user details
+        if (req.body.name) user.name = req.body.name;
+        if (req.body.email) user.email = req.body.email;
+        if (req.body.password) user.password = req.body.password;
+
+        // Handle avatar update
+        if (req.file) {
+            // If user already has an avatar, delete the old file
+            if (user.avatar) {
+                try {
+                    // Extract just the filename from the stored path
+                    const filename = path.basename(user.avatar);
+                    const filePath = path.join(uploadsDir, filename);
+
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                } catch (error) {
+                    console.log('Failed to delete old avatar:', error);
+                    // Continue even if deletion fails
+                }
+            }
+
+            // Store just the filename in the database for simplicity
+            user.avatar = `/uploads/avatars/${req.file.filename}`;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser.id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            role: updatedUser.role,
+            avatar: updatedUser.avatar,
+        });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({message: "Server error", error: error.message});
+    }
+};
+
+
 const test = (req, res) => {
     return res.json({message: "Test"});
-}
+};
 
-module.exports = {registerUser, loginUser, getUserProfile, test};
+module.exports = {
+    getUserProfile,
+    updateUserProfile,
+};
+
