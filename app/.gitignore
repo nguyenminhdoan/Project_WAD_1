@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# IDE - JetBrains (WebStorm, IntelliJ, etc.)
+.idea/
+.idea/modules.xml
