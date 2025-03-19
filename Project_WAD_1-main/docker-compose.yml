@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  # Backend service
+  backend:
+    #    network_mode: "host"
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        - PORT=${BACKEND_PORT:-5000}
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/${MONGO_DB_NAME:-project1}
+    depends_on:
+      - mongo
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+      - ./server/uploads:/usr/src/app/src/uploads
+
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - VITE_API_ENDPOINT=http://backend:${BACKEND_PORT:-5000}/api
+    volumes:
+      - ./app:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Database service
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
