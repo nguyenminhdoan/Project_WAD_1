@@ -46,7 +46,7 @@ const Register = () => {
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h4" align="center" gutterBottom>
-          Kayıt Ol
+          Register
         </Typography>
 
         {/* Hata mesajı */}
@@ -54,7 +54,7 @@ const Register = () => {
 
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Ad"
+            label="Name"
             name="name"
             variant="outlined"
             fullWidth
@@ -65,7 +65,7 @@ const Register = () => {
           />
 
           <TextField
-            label="E-posta"
+            label="E-mail"
             name="email"
             variant="outlined"
             fullWidth
@@ -77,7 +77,7 @@ const Register = () => {
           />
 
           <TextField
-            label="Şifre"
+            label="Password"
             name="password"
             variant="outlined"
             fullWidth
@@ -96,15 +96,15 @@ const Register = () => {
             disabled={isSubmitting}
             sx={{ mt: 2 }}
           >
-            {isSubmitting ? 'Kayıt Ediliyor...' : 'Kayıt Ol'}
+            {isSubmitting ? 'Registering...' : 'Register'}
           </Button>
         </form>
 
         <Box mt={2} textAlign="center">
           <Typography variant="body2">
-            Zaten bir hesabınız var mı?{' '}
+            Do ypu have account already?{' '}
             <Button color="primary" onClick={() => navigate('/login')}>
-              Giriş Yap
+              Login
             </Button>
           </Typography>
         </Box>
