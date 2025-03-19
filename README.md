@@ -7,7 +7,7 @@ This guide will help you set up and run the full-stack application using Docker.
 - [Docker](https://www.docker.com/get-started)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Setup Steps ##
+## Setup Steps 
 
 1. **Clone the repository**
    ```
