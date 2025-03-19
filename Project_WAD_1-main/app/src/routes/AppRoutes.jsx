@@ -4,6 +4,9 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage'; // RegisterPage import edildi
 import DashboardPage from '../pages/DashboardPage';
 import ProtectedRoute from './ProtectedRoute.jsx';
+import EditProductPage from '../pages/EditProductPage.jsx';
+import EditProfilePage from '../pages/EditProfilePage.jsx';
+import ProfilePage from '../pages/ProfilePage.jsx';
 
 const AppRoutes = () => {
     return (
