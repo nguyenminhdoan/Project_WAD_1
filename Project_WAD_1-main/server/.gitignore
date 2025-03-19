@@ -1,7 +1,0 @@
-node_modules/
-.env
-
-
-# IDE - JetBrains (WebStorm, IntelliJ, etc.)
-.idea/
-.idea/modules.xml
