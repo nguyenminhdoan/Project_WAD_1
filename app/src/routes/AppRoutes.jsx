@@ -3,6 +3,7 @@ import MainLayout from '../layouts/MainLayout';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProtectedRoute from './ProtectedRoute.jsx';
+import ProductPage from '../pages/ProductPage.jsx';
 
 const AppRoutes = () => {
     return (
@@ -10,6 +11,7 @@ const AppRoutes = () => {
             <Routes>
                 <Route path="/" element={<MainLayout/>}>
                     <Route path="login" element={<LoginPage/>}/>
+                    <Route path="product" element={<ProductPage/>}/>
                     <Route
                         path="dashboard"
                         element={
