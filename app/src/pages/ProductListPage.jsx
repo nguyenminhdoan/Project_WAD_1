@@ -44,7 +44,6 @@ const ProductListPage = () => {
     console.log(products);
     const [currentPage, setCurrentPage] = useState(1);
     //const [products, setProducts] = useState(mockProducts); // Store local product state
-    const [products, setProducts] = useState([]); // start will empty list, be ready to take data from database
 
     const productsPerPage = 5;
     const navigate = useNavigate();
