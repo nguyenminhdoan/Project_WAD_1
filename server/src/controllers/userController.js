@@ -6,7 +6,7 @@ const {uploadsDir} = require('../middleware/uploadMiddleware');
 
 // Get user profile
 const getUserProfile = async (req, res) => {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.params.id);
 
     if (user) {
         res.json({

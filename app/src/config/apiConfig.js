@@ -9,6 +9,13 @@ export const apiConfig = {
             getById: (id) => `/products/${id}`,
             update: (id) => `/products/${id}`,
             delete: (id) => `/products/${id}`
+        },
+        users: {
+            list: '/profiles',
+            create: '/profiles/create',
+            getById: (id) => `/profiles/${id}`,
+            update: (id) => `/profiles/${id}`,
+            delete: (id) => `/profiles/${id}`
         }
     // other endpoints config here
     }
