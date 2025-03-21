@@ -157,7 +157,14 @@ const ProductListPage = () => {
                                 {/*<td>*/}
                                 {/*    <img src={`${API_BASE_URL}${product.image}`} alt={product.name} width="50" />*/}
                                 {/*</td>*/}
-                                <td>{product.name}</td>
+                                <td>
+                                    <span
+                                        onClick={() => navigate(`/product/${product._id}`)}
+                                        style={{ cursor: 'pointer', color: 'inherit' }}
+                                    >
+                                        {product.name}
+                                    </span>
+                                </td>
                                 <td>${product.price.toFixed(2)}</td>
                                 <td>{`${product.amount ? product.amount : 0}`}</td>
                                 <td>
