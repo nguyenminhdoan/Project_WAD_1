@@ -1,19 +1,38 @@
 import { useState, useEffect } from 'react';
+import { useGetProductsQuery, useCreateProductMutation } from '../features/products/productsApiSlice';
+
 
 const ProductListPage = () => {
-    const [products, setProducts] = useState([]);
+    const [productsList, setProductsList] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const productsPerPage = 5;
+    const {
+        data: products = [],
+        isLoading,
+        isError,
+        error,
+        refetch,
+    } = useGetProductsQuery();
+
+    const [getListProduct] = useCreateProductMutation();
 
     useEffect(() => {
-        // Mock API Call ----> I cannot see any available API to fetch the profile data
-        const fetchProducts = async () => {
-            const response = await fetch('/api/products');
-            const data = await response.json();
-            setProducts(data);
-        };
-        fetchProducts();
-    }, []);
+        if (!isLoading && !isError && products.length > 0) {
+            console.log("Products loaded successfully:", products);
+        }
+    }, [isLoading, isError, products]);
+
+
+    // useEffect(() => {
+    //     // Mock API Call ----> I cannot see any available API to fetch the profile data
+    //     const fetchProducts = async () => {
+    //         const response = await fetch('/api/products');
+    //         const data = await response.json();
+    //         setProducts(data);
+    //     };
+    //     fetchProducts();
+    // }, []);
+
 
     // Pagination Logic
     const indexOfLastProduct = currentPage * productsPerPage;
