@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    rating: {
+    amount: {
         type: Number,
         default: 0
     },

@@ -30,7 +30,7 @@ const getProductById = async (req, res) => {
 // Create new product
 const createProduct = async (req, res) => {
     try {
-        const { name, description, price, rating } = req.body;
+        const { name, description, price, amount } = req.body;
 
         // Handle image upload
         const image = req.file ? `/uploads/products/${req.file.filename}` : '/uploads/products/default.jpg';
@@ -39,7 +39,7 @@ const createProduct = async (req, res) => {
             name,
             description,
             price,
-            rating: rating || 0,
+            amount: amount || 0,
             image
         });
 
@@ -63,7 +63,7 @@ const updateProduct = async (req, res) => {
         if (req.body.name) product.name = req.body.name;
         if (req.body.description) product.description = req.body.description;
         if (req.body.price) product.price = req.body.price;
-        if (req.body.rating) product.rating = req.body.rating;
+        if (req.body.amount) product.amount = req.body.amount;
 
         // Handle image update (similar to avatar update in user controller)
         if (req.file) {
@@ -87,7 +87,7 @@ const deleteProduct = async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        await product.remove();
+        await product.deleteOne();
         res.json({ message: 'Product removed' });
     } catch (error) {
         console.error('Error deleting product:', error);
