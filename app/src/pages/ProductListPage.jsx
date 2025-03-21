@@ -1,68 +1,102 @@
-import { useState, useEffect } from 'react';
-import { useGetProductsQuery, useCreateProductMutation } from '../features/products/productsApiSlice';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+// Mock Product Data
+const mockProducts = [
+    {
+        _id: "64f8a3c2e4b1f2d3c4b5a6b7",
+        name: "Apple MacBook Pro 16-inch",
+        description: "Apple M3 Pro chip, 16GB RAM, 512GB SSD, 16-inch Retina Display",
+        price: 2499.99,
+        rating: 4.8,
+        image: "https://example.com/images/macbook-pro-16.jpg",
+        createdAt: "2023-09-06T12:34:26.789Z",
+    },
+    {
+        _id: "64f8a3c2e4b1f2d3c4b5a6b8",
+        name: "Dell XPS 15",
+        description: "Intel Core i9, 32GB RAM, 1TB SSD, 4K OLED Display",
+        price: 2199.99,
+        rating: 4.7,
+        image: "https://example.com/images/dell-xps-15.jpg",
+        createdAt: "2023-09-10T15:21:56.489Z",
+    },
+    {
+        _id: "64f8a3c2e4b1f2d3c4b5a6b9",
+        name: "Lenovo ThinkPad X1 Carbon",
+        description: "Intel Core i7, 16GB RAM, 512GB SSD, 14-inch FHD Display",
+        price: 1799.99,
+        rating: 4.6,
+        image: "https://example.com/images/thinkpad-x1-carbon.jpg",
+        createdAt: "2023-09-12T10:12:30.123Z",
+    },
+];
 
 const ProductListPage = () => {
-    const [productsList, setProductsList] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [products, setProducts] = useState(mockProducts); // Store local product state
     const productsPerPage = 5;
-    const {
-        data: products = [],
-        isLoading,
-        isError,
-        error,
-        refetch,
-    } = useGetProductsQuery();
-
-    const [getListProduct] = useCreateProductMutation();
-
-    useEffect(() => {
-        if (!isLoading && !isError && products.length > 0) {
-            console.log("Products loaded successfully:", products);
-        }
-    }, [isLoading, isError, products]);
-
-
-    // useEffect(() => {
-    //     // Mock API Call ----> I cannot see any available API to fetch the profile data
-    //     const fetchProducts = async () => {
-    //         const response = await fetch('/api/products');
-    //         const data = await response.json();
-    //         setProducts(data);
-    //     };
-    //     fetchProducts();
-    // }, []);
-
+    const navigate = useNavigate();
 
     // Pagination Logic
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-    const handleNextPage = () => setCurrentPage((prev) => prev + 1);
-    const handlePrevPage = () => setCurrentPage((prev) => prev - 1);
+    // Handle Delete Action
+    const handleDelete = (productId) => {
+        if (window.confirm("Are you sure you want to delete this product?")) {
+            const updatedProducts = products.filter((product) => product._id !== productId);
+            setProducts(updatedProducts);
+        }
+    };
 
     return (
         <div className="container">
-            <h1>Product List</h1>
+            <div className="flex-between mb-2">
+                <h1>Product List</h1>
+                <button className="primary" onClick={() => navigate('/product/add')}>
+                    ➕ Add Product
+                </button>
+            </div>
+
             <table>
                 <thead>
                     <tr>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Price</th>
+                        <th>Rating</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {currentProducts.map((product) => (
-                        <tr key={product.id}>
-                            <td>{product.name}</td>
-                            <td>${product.price.toFixed(2)}</td>
-                            <td>
-                                <button className="primary">Edit</button>
-                            </td>
+                    {currentProducts.length > 0 ? (
+                        currentProducts.map((product) => (
+                            <tr key={product._id}>
+                                <td>
+                                    <img src={product.image} alt={product.name} width="50" />
+                                </td>
+                                <td>{product.name}</td>
+                                <td>${product.price.toFixed(2)}</td>
+                                <td>{product.rating} ⭐</td>
+                                <td>
+                                    <button className="primary">Edit</button>
+                                    <button
+                                        className="secondary"
+                                        style={{ marginLeft: "8px", backgroundColor: "#ff4d4d", color: "white" }}
+                                        onClick={() => handleDelete(product._id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="5" className="text-center">No products available</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
 
@@ -70,7 +104,7 @@ const ProductListPage = () => {
             <div className="pagination">
                 <button
                     className="secondary"
-                    onClick={handlePrevPage}
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
                 >
                     Previous
@@ -80,7 +114,7 @@ const ProductListPage = () => {
 
                 <button
                     className="secondary"
-                    onClick={handleNextPage}
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
                     disabled={indexOfLastProduct >= products.length}
                 >
                     Next
