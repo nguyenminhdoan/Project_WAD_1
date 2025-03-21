@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AddProductForm from "../components/AddProductForm";
 
 // Mock Product Data
 const mockProducts = [
@@ -37,6 +38,8 @@ const ProductListPage = () => {
     const [products, setProducts] = useState(mockProducts); // Store local product state
     const productsPerPage = 5;
     const navigate = useNavigate();
+    const [showForm, setShowForm] = useState(false);
+    const [notification, setNotification] = useState(null);
 
     // Pagination Logic
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -51,11 +54,56 @@ const ProductListPage = () => {
         }
     };
 
+    //handle Add Product
+    const handleAddProduct = async (newProduct) => {
+        try {
+          const response = await fetch('http://localhost:5001/api/products/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newProduct),
+          });
+      
+          if (response.ok) {
+            const savedProduct = await response.json();
+            setProducts((prevProducts) => [...prevProducts, savedProduct]);
+            setNotification({ type: 'success', message: 'Product added successfully!' });
+          } else {
+            setNotification({ type: 'error', message: 'Failed to add product.' });
+          }
+        } catch (error) {
+          setNotification({ type: 'error', message: 'An error occurred while adding the product.' });
+        }
+      
+        // Hide notification after 3 seconds
+        setTimeout(() => setNotification(null), 3000);
+    };
+
     return (
         <div className="container">
             <div className="flex-between mb-2">
+
+            {notification && (
+                <div
+                    style={{
+                    position: 'fixed',
+                    top: '20px',
+                    right: '20px',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    backgroundColor: notification.type === 'success' ? '#d4edda' : '#f8d7da',
+                    color: notification.type === 'success' ? '#155724' : '#721c24',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
+                    zIndex: 9999,
+                    }}
+                >
+                    {notification.message}
+                </div>
+            )}
+
                 <h1>Product List</h1>
-                <button className="primary" onClick={() => navigate('/product/add')}>
+                <button className="primary" onClick={() => setShowForm(true)}>
                     ➕ Add Product
                 </button>
             </div>
@@ -120,6 +168,13 @@ const ProductListPage = () => {
                     Next
                 </button>
             </div>
+
+            {showForm && (
+                <AddProductForm
+                    onClose={() => setShowForm(false)}
+                    onAddProduct={handleAddProduct}
+                />
+            )}
         </div>
     );
 };
