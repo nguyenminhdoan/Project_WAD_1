@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddProductForm from "../components/AddProductForm";
 
@@ -35,11 +36,31 @@ const mockProducts = [
 
 const ProductListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [products, setProducts] = useState(mockProducts); // Store local product state
+    //const [products, setProducts] = useState(mockProducts); // Store local product state
+    const [products, setProducts] = useState([]); // start will empty list, be ready to take data from database
     const productsPerPage = 5;
     const navigate = useNavigate();
     const [showForm, setShowForm] = useState(false);
     const [notification, setNotification] = useState(null);
+
+    // Fetch Products from API
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await fetch('http://localhost:5001/api/products');
+                if (response.ok) {
+                    const data = await response.json();
+                    setProducts(data);
+                } else {
+                    console.error("Failed to fetch products");
+                }
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     // Pagination Logic
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -114,7 +135,7 @@ const ProductListPage = () => {
                         <th>Image</th>
                         <th>Name</th>
                         <th>Price</th>
-                        <th>Rating</th>
+                        <th>Amount</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -127,7 +148,7 @@ const ProductListPage = () => {
                                 </td>
                                 <td>{product.name}</td>
                                 <td>${product.price.toFixed(2)}</td>
-                                <td>{product.rating} ⭐</td>
+                                <td>{product.amount}</td>
                                 <td>
                                     <button className="primary">Edit</button>
                                     <button

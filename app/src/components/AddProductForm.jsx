@@ -14,7 +14,7 @@ const AddProductForm = ({ onClose, onAddProduct }) => {
       price: parseFloat(price),
       amount: parseInt(amount),
       description,
-      rating: 0,
+      amount,
       createdAt: new Date().toISOString(),
     };
     onAddProduct(newProduct);
