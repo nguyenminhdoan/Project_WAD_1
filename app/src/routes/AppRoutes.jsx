@@ -7,6 +7,7 @@ import ProductPage from '../pages/ProductPage.jsx';
 import ProfilePage from '../pages/ProfilePage.jsx';
 import EditProfilePage from '../pages/EditProfilePage.jsx';
 import ProductListPage from '../pages/ProductListPage.jsx';
+import RegisterPage from '../pages/RegisterPage.jsx';
 
 const AppRoutes = () => {
     return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
             <Routes>
                 <Route path="/" element={<MainLayout />}>
                     <Route path="login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage/>}/> 
                     <Route path="/product/:id" element={<ProductPage />} />
                     <Route path="product-list" element={<ProductListPage />} />
                     <Route path="profile" element={<ProfilePage />} />
