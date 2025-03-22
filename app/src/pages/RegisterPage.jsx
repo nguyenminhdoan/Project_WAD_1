@@ -102,7 +102,7 @@ const Register = () => {
 
         <Box mt={2} textAlign="center">
           <Typography variant="body2">
-            Do ypu have account already?{' '}
+            Do you have account already?{' '}
             <Button color="primary" onClick={() => navigate('/login')}>
               Login
             </Button>
