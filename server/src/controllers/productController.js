@@ -53,7 +53,8 @@ const createProduct = async (req, res) => {
 // Update product
 const updateProduct = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.body._id);
+
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });

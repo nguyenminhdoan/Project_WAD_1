@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {API_BASE_URL } from '../utils/constant.js'
 
 const ProductPage = () => {
     const { id } = useParams();
@@ -10,7 +11,7 @@ const ProductPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`http://localhost:5001/api/products/${id}`);
+                const response = await fetch(`${API_BASE_URL}/${id}`);
                 if (response.ok) {
                     const data = await response.json();
                     setProduct(data);

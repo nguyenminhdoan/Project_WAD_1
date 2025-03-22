@@ -11,7 +11,7 @@ const router = express.Router();
 
 // Protected routes
 router.get('/profile/:id', getUserProfile);
-router.put('/profile', protect, upload.single('avatar'), updateUserProfile);
+router.put('/profile', upload.single('avatar'), updateUserProfile);
 
 
 module.exports = router;
