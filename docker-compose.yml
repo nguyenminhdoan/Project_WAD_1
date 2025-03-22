@@ -15,7 +15,7 @@ services:
       - .env
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongo:27017/${MONGO_DB_NAME:-project1}
+      - MONGODB_URI=mongodb://mongo:27017/project1
     depends_on:
       - mongo
     volumes:
