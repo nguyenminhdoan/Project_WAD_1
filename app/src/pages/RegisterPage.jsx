@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../features/auth/authSlice';
 
-const LoginPage = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: ''
   });
@@ -15,7 +14,6 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   // Form input değişikliklerini handle et
   const handleChange = (e) => {
@@ -33,17 +31,10 @@ const LoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post('http://localhost:5000/api/auth/register', formData);
 
-      // Başarılı giriş, kullanıcı bilgilerini redux store'a dispatch et
-      dispatch(loginSuccess(response.data.user));
-
-      // Store the access and refresh tokens in localStorage (or sessionStorage)
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-
-      // Giriş başarılı ise kullanıcıyı ana sayfaya yönlendir
-      navigate('/');
+      // Başarılı olursa kullanıcıyı login sayfasına yönlendir
+      navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Error occurred, please try again');
     } finally {
@@ -55,13 +46,24 @@ const LoginPage = () => {
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h4" align="center" gutterBottom>
-          Login
+          Register
         </Typography>
 
         {/* Hata mesajı */}
         {error && <Alert severity="error">{error}</Alert>}
 
         <form onSubmit={handleSubmit}>
+          <TextField
+            label="Name"
+            name="name"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+
           <TextField
             label="E-mail"
             name="email"
@@ -94,15 +96,15 @@ const LoginPage = () => {
             disabled={isSubmitting}
             sx={{ mt: 2 }}
           >
-            {isSubmitting ? 'Logging in...' : 'Login'}
+            {isSubmitting ? 'Registering...' : 'Register'}
           </Button>
         </form>
 
         <Box mt={2} textAlign="center">
           <Typography variant="body2">
-            Don't have an account?{' '}
-            <Button color="primary" onClick={() => navigate('/register')}>
-              Register
+            Do ypu have account already?{' '}
+            <Button color="primary" onClick={() => navigate('/login')}>
+              Login
             </Button>
           </Typography>
         </Box>
@@ -111,4 +113,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default Register;
