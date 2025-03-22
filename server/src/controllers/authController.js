@@ -8,7 +8,7 @@ const generateTokens = (id) => {
     const accessToken = jwt.sign(
         {id},
         process.env.JWT_SECRET,
-        {expiresIn: '1h'}
+        {expiresIn: '30d'}
     );
 
     const refreshToken = jwt.sign(
@@ -118,30 +118,37 @@ const refreshToken = async (req, res) => {
     }
 };
 
-// Logout user
 const logoutUser = async (req, res) => {
-    const {refreshToken} = req.body; // Get from request body
-
     try {
-        const result = await RefreshToken.findOneAndUpdate(
-            {token: refreshToken},
-            {
-                isRevoked: true,
-                revokedAt: new Date()
-            }
-        );
+        // Get the refresh token (from cookie or request body)
+        const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
-        if (!result) {
-            return res.status(400).json({message: 'Invalid refresh token'});
+        if (refreshToken) {
+            // Invalidate the refresh token in the database
+            await RefreshToken.findOneAndDelete({ token: refreshToken });
+            // Or mark it as invalid if you keep history
+            // await RefreshToken.findOneAndUpdate({ token: refreshToken }, { isValid: false });
         }
 
-        res.status(200).json({message: 'Logged out successfully'});
-    } catch (error) {
-        res.status(500).json({message: 'Error logging out'});
-    }
+        // Clear cookies if you store tokens in cookies
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
 
-    res.status(200).json({message: 'Logged out successfully'});
+        // Send the response ONLY ONCE
+        return res.status(200).json({ message: 'Logged out successfully' });
+
+    } catch (error) {
+        console.error('Logout error:', error);
+
+        if (!res.headersSent) {
+            return res.status(500).json({ message: 'Server error during logout' });
+        }
+    }
 };
+
 
 const refreshAccessToken = async (req, res) => {
     try {
@@ -189,6 +196,46 @@ const refreshAccessToken = async (req, res) => {
     }
 };
 
+const verifyToken = async (req, res) => {
+    try {
+        // Get token from header
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+
+        if (!token) {
+            return res.status(401).json({ valid: false, message: 'No token provided' });
+        }
+
+        // Verify JWT
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Check if user still exists and is active
+        const user = await User.findById(decoded.id).select('-password');
+
+        if (!user) {
+            return res.status(401).json({ valid: false, message: 'User not found' });
+        }
+
+        if (!user.isActive) {
+            return res.status(401).json({ valid: false, message: 'User account is inactive' });
+        }
+
+        // Return success with minimal user info
+        return res.status(200).json({
+            valid: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Token verification error:', error.message);
+        return res.status(401).json({ valid: false, message: 'Invalid token' });
+    }
+};
+
+
 
 const testAdmin = (req, res) => {
     return res.json({message: "Test"});
@@ -201,5 +248,6 @@ module.exports = {
     refreshToken,
     logoutUser,
     refreshAccessToken,
-    testAdmin
+    testAdmin,
+    verifyToken
 };

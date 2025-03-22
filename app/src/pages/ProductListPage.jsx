@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddProductForm from "../components/AddProductForm";
-import {useGetProductsQuery, useDeleteProductMutation } from '../features/products/productsApiSlice.js'
-
+import {useGetProductsQuery, useDeleteProductMutation, useCreateProductMutation, useUpdateProductMutation, useGetProductByIdQuery } from '../features/products/productsApiSlice.js'
+import { API_BASE_URL } from '../utils/constant.js'
 
 // Mock Product Data
 // const mockProducts = [
@@ -36,13 +36,18 @@ import {useGetProductsQuery, useDeleteProductMutation } from '../features/produc
 //     },
 // ];
 
-const API_BASE_URL = "http://localhost:5001"
+// const API_BASE_URL = "http://localhost:5001"
 
 const ProductListPage = () => {
     const { data: products = [], isLoading, isError, refetch} = useGetProductsQuery();
     const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-    console.log(products);
+    const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+    const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
     const [currentPage, setCurrentPage] = useState(1);
+    const [productToEdit, setProductToEdit] = useState(null);
+    const [editingProductId, setEditingProductId] = useState(null);
+
+
     //const [products, setProducts] = useState(mockProducts); // Store local product state
 
     const productsPerPage = 5;
@@ -51,23 +56,69 @@ const ProductListPage = () => {
     const [notification, setNotification] = useState(null);
 
     // Fetch Products from API
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await fetch('http://localhost:5001/api/products');
-                if (response.ok) {
-                    const data = await response.json();
-                    setProducts(data);
-                } else {
-                    console.error("Failed to fetch products");
-                }
-            } catch (error) {
-                console.error("Error fetching products:", error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchProducts = async () => {
+    //         try {
+    //             const response = await fetch(`${API_BASE_URL}/products`);
+    //             if (response.ok) {
+    //                 const data = await response.json();
+    //                 setProducts(data);
+    //             } else {
+    //                 console.error("Failed to fetch products");
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching products:", error);
+    //         }
+    //     };
+    //
+    //     fetchProducts();
+    // }, []);
+    const {
+        data: productDetails,
+        isLoading: isLoadingDetails,
+        isError: isErrorDetails
+    } = useGetProductByIdQuery(editingProductId, {
+        skip: !editingProductId,
+    });
 
-        fetchProducts();
-    }, []);
+    useEffect(() => {
+        if (notification) {
+            const timer = setTimeout(() => {
+                setNotification(null);
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [notification]);
+
+    const handleAddProduct = async (newProduct) => {
+        try {
+            const response = await createProduct(newProduct).unwrap();
+            setNotification({ type: 'success', message: 'Product added successfully!' });
+            setShowForm(false);
+        } catch (error) {
+            console.error('Failed to add product:', error);
+            setNotification({ type: 'error', message: `Failed to add product: ${error.message || 'Unknown error'}` });
+        }
+    };
+
+    // Handle Edit Product
+    const handleEditProduct = async (updatedProduct) => {
+        try {
+            const response = await updateProduct({
+                ...updatedProduct,
+                _id: updatedProduct._id
+            }).unwrap();
+
+            setNotification({ type: 'success', message: 'Product updated successfully!' });
+            setShowForm(false);
+            setProductToEdit(null);
+            refetch();
+        } catch (error) {
+            console.error('Failed to update product:', error);
+            setNotification({ type: 'error', message: `Failed to update product: ${error.message || 'Unknown error'}` });
+        }
+    };
 
     // Pagination Logic
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -87,103 +138,127 @@ const ProductListPage = () => {
     };
 
     //handle Add Product
-    const handleAddProduct = async (newProduct) => {
-        try {
-          const response = await fetch('http://localhost:5001/api/products/create', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newProduct),
-          });
-      
-          if (response.ok) {
-            const savedProduct = await response.json();
-            setProducts((prevProducts) => [...prevProducts, savedProduct]);
-            setNotification({ type: 'success', message: 'Product added successfully!' });
-          } else {
-            setNotification({ type: 'error', message: 'Failed to add product.' });
-          }
-        } catch (error) {
-          setNotification({ type: 'error', message: 'An error occurred while adding the product.' });
-        }
-      
-        // Hide notification after 3 seconds
-        setTimeout(() => setNotification(null), 3000);
+    // const handleAddProduct = async (newProduct) => {
+    //     try {
+    //       const response = await fetch('http://localhost:5001/api/products/create', {
+    //         method: 'POST',
+    //         headers: {
+    //           'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(newProduct),
+    //       });
+    //
+    //       if (response.ok) {
+    //         const savedProduct = await response.json();
+    //         setProducts((prevProducts) => [...prevProducts, savedProduct]);
+    //         setNotification({ type: 'success', message: 'Product added successfully!' });
+    //       } else {
+    //         setNotification({ type: 'error', message: 'Failed to add product.' });
+    //       }
+    //     } catch (error) {
+    //       setNotification({ type: 'error', message: 'An error occurred while adding the product.' });
+    //     }
+    //
+    //     // Hide notification after 3 seconds
+    //     setTimeout(() => setNotification(null), 3000);
+    // };
+    // Open form for editing
+    const handleOpenEditForm = (productId) => {
+        setEditingProductId(productId);
     };
+
+    // Handle form close
+    const handleCloseForm = () => {
+        setShowForm(false);
+        setProductToEdit(null);
+    };
+
+    // Effect to show form after product details are fetched
+    useEffect(() => {
+        // When product details are loaded and we're in edit mode
+        if (productDetails && editingProductId) {
+            setShowForm(true);
+        }
+    }, [productDetails, editingProductId]);
 
     return (
         <div className="container">
             <div className="flex-between mb-2">
-
-            {notification && (
-                <div
-                    style={{
-                    position: 'fixed',
-                    top: '20px',
-                    right: '20px',
-                    padding: '12px 20px',
-                    borderRadius: '8px',
-                    backgroundColor: notification.type === 'success' ? '#d4edda' : '#f8d7da',
-                    color: notification.type === 'success' ? '#155724' : '#721c24',
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
-                    zIndex: 9999,
-                    }}
-                >
-                    {notification.message}
-                </div>
-            )}
+                {notification && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: '20px',
+                            right: '20px',
+                            padding: '12px 20px',
+                            borderRadius: '8px',
+                            backgroundColor: notification.type === 'success' ? '#d4edda' : '#f8d7da',
+                            color: notification.type === 'success' ? '#155724' : '#721c24',
+                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
+                            zIndex: 9999,
+                        }}
+                    >
+                        {notification.message}
+                    </div>
+                )}
 
                 <h1>Product List</h1>
-                <button className="primary" onClick={() => setShowForm(true)}>
+                <button
+                    className="primary"
+                    onClick={() => { setEditingProductId(null); setShowForm(true); }}
+                >
                     ➕ Add Product
                 </button>
             </div>
 
+            {/* Product Table */}
             <table>
                 <thead>
-                    <tr>
-                        {/*<th>Image</th>*/}
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Amount</th>
-                        <th>Actions</th>
-                    </tr>
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {currentProducts.length > 0 ? (
-                        currentProducts.map((product) => (
-                            <tr key={product._id}>
-                                {/*<td>*/}
-                                {/*    <img src={`${API_BASE_URL}${product.image}`} alt={product.name} width="50" />*/}
-                                {/*</td>*/}
-                                <td>
+                {currentProducts.length > 0 ? (
+                    currentProducts.map((product) => (
+                        <tr key={product._id}>
+                            <td>
                                     <span
                                         onClick={() => navigate(`/product/${product._id}`)}
                                         style={{ cursor: 'pointer', color: 'inherit' }}
                                     >
                                         {product.name}
                                     </span>
-                                </td>
-                                <td>${product.price.toFixed(2)}</td>
-                                <td>{`${product.amount ? product.amount : 0}`}</td>
-                                <td>
-                                    <button className="primary">Edit</button>
-                                    <button
-                                        className="secondary"
-                                        style={{ marginLeft: "8px", backgroundColor: "#ff4d4d", color: "white" }}
-                                        onClick={() => handleDelete(product._id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="5" className="text-center">No products available</td>
+                            </td>
+                            <td>${product.price.toFixed(2)}</td>
+                            <td>{`${product.amount ? product.amount : 0}`}</td>
+                            <td>
+                                <button
+                                    className="primary"
+                                    onClick={() => handleOpenEditForm(product._id)}
+                                    disabled={isLoadingDetails && editingProductId === product._id}
+                                >
+                                    {isLoadingDetails && editingProductId === product._id ? "Loading..." : "Edit"}
+                                </button>
+                                <button
+                                    className="secondary"
+                                    style={{ marginLeft: "8px", backgroundColor: "#ff4d4d", color: "white" }}
+                                    onClick={() => handleDelete(product._id)}
+                                    disabled={isDeleting}
+                                >
+                                    Delete
+                                </button>
+                            </td>
                         </tr>
-                    )}
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="4" className="text-center">No products available</td>
+                    </tr>
+                )}
                 </tbody>
             </table>
 
@@ -208,14 +283,20 @@ const ProductListPage = () => {
                 </button>
             </div>
 
+            {/* Form Modal - Only show when needed */}
             {showForm && (
                 <AddProductForm
-                    onClose={() => setShowForm(false)}
+                    onClose={handleCloseForm}
                     onAddProduct={handleAddProduct}
+                    onEditProduct={handleEditProduct}
+                    productToEdit={editingProductId ? productDetails : null}
+                    isLoading={isLoadingDetails}
                 />
             )}
         </div>
     );
+
+
 };
 
 export default ProductListPage;

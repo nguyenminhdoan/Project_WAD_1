@@ -1,23 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../features/auth/authSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useLoginMutation } from '../features/auth/authApiSlice';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const [login, { isLoading, error }] = useLoginMutation();
 
-  // Form input değişikliklerini handle et
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -26,88 +20,80 @@ const LoginPage = () => {
     }));
   };
 
-  // Form submit işlemi
+  const from = location.state?.from?.pathname || '/';
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
-
-      // Başarılı giriş, kullanıcı bilgilerini redux store'a dispatch et
-      dispatch(loginSuccess(response.data.user));
-
-      // Store the access and refresh tokens in localStorage (or sessionStorage)
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-
-      // Giriş başarılı ise kullanıcıyı ana sayfaya yönlendir
-      navigate('/');
+      await login(formData).unwrap();
+      navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error occurred, please try again');
-    } finally {
-      setIsSubmitting(false);
+      // Error handling
     }
   };
 
+
   return (
-    <Container maxWidth="sm">
-      <Box mt={5}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Login
-        </Typography>
-
-        {/* Hata mesajı */}
-        {error && <Alert severity="error">{error}</Alert>}
-
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="E-mail"
-            name="email"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={formData.email}
-            onChange={handleChange}
-            type="email"
-            required
-          />
-
-          <TextField
-            label="Password"
-            name="password"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={formData.password}
-            onChange={handleChange}
-            type="password"
-            required
-          />
-
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            type="submit"
-            disabled={isSubmitting}
-            sx={{ mt: 2 }}
-          >
-            {isSubmitting ? 'Logging in...' : 'Login'}
-          </Button>
-        </form>
-
-        <Box mt={2} textAlign="center">
-          <Typography variant="body2">
-            Don't have an account?{' '}
-            <Button color="primary" onClick={() => navigate('/register')}>
-              Register
-            </Button>
+      <Container maxWidth="sm">
+        <Box mt={5}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Login
           </Typography>
+
+          {error && (
+              <Alert severity="error">
+                {error.data?.message || 'An error occurred during login'}
+              </Alert>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+                label="E-mail"
+                name="email"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={formData.email}
+                onChange={handleChange}
+                type="email"
+                required
+            />
+
+            <TextField
+                label="Password"
+                name="password"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={formData.password}
+                onChange={handleChange}
+                type="password"
+                required
+            />
+
+            <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                type="submit"
+                disabled={isLoading}
+                sx={{ mt: 2 }}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
+            </Button>
+          </form>
+
+          <Box mt={2} textAlign="center">
+            <Typography variant="body2">
+              Don't have an account?{' '}
+              <Button color="primary" onClick={() => navigate('/register')}>
+                Register
+              </Button>
+            </Typography>
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
   );
 };
 

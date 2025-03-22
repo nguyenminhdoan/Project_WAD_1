@@ -16,7 +16,7 @@ router.get('/:id', getProductById);
 
 // Protected routes (assuming you have authentication middleware)
 router.post('/create', uploadProduct.single('image'), createProduct);
-router.put('/:id', uploadProduct.single('image'), updateProduct);
+router.put('/update', uploadProduct.single('image'), updateProduct);
 router.delete('/:id', deleteProduct);
 
 module.exports = router;
