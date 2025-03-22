@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../utils/constant.js'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -31,7 +32,7 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
 
       // Başarılı olursa kullanıcıyı login sayfasına yönlendir
       navigate('/login');
