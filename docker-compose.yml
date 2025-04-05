@@ -3,7 +3,6 @@ version: "3.9"
 services:
   # Backend service
   backend:
-    #    network_mode: "host"
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -14,15 +13,13 @@ services:
     env_file:
       - .env
     environment:
-      - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongo:27017/${MONGO_DB_NAME:-project1}
+      - MONGODB_URI=mongodb+srv://nguyenminhdoan0303:minhdoan0303@cluster0.fjj6e.mongodb.net/Project1?retryWrites=true&w=majority
     depends_on:
       - mongo
     volumes:
       - ./server:/usr/src/app
       - /usr/src/app/node_modules
       - ./server/uploads:/usr/src/app/src/uploads
-
     restart: unless-stopped
     networks:
       - app-network
@@ -45,7 +42,7 @@ services:
     networks:
       - app-network
 
-  # Database service
+  # Database service (local Mongo)
   mongo:
     image: mongo:latest
     container_name: mongo
