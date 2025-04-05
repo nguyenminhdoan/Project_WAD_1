@@ -8,7 +8,7 @@ buildRoot = "./server"
 port = "5000"
 env = {
   NODE_ENV = "development",
-  MONGODB_URI = "mongodb+srv://nguyenminhdoan0303:01684485815Tv.@cluster0.fjj6e.mongodb.net/Project1?retryWrites=true&w=majority"
+  MONGODB_URI = "mongodb+srv://nguyenminhdoan0303:minhdoan0303@cluster0.fjj6e.mongodb.net/Project1?retryWrites=true&w=majority"
 }
 
 [[services]]
