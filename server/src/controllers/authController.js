@@ -74,7 +74,8 @@ const loginUser = async (req, res) => {
             name: user.name,
             email: user.email,
             accessToken,
-            refreshToken
+            refreshToken,
+            avatar: user.avatar
         });
     } else {
         res.status(401).json({message: 'Invalid credentials'});
