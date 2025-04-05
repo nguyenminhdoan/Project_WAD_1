@@ -1,0 +1,21 @@
+[project]
+name = "my-project"
+
+[[services]]
+name = "backend"
+dockerfile = "./server/Dockerfile"
+buildRoot = "./server"
+env = {
+  NODE_ENV = "development",
+  MONGODB_URI = "mongodb+srv://nguyenminhdoan0303:minhdoan0303@cluster0.mongodb.net/Project1?retryWrites=true&w=majority"
+}
+port = 5000
+
+[[services]]
+name = "frontend"
+dockerfile = "./app/Dockerfile"
+buildRoot = "./app"
+env = {
+  VITE_API_ENDPOINT = "https://backend.up.railway.app/api"
+}
+port = 3000
