@@ -1,21 +1,21 @@
 [project]
-name = "my-project"
+name = "Project_WAD_1"
 
 [[services]]
 name = "backend"
 dockerfile = "./server/Dockerfile"
 buildRoot = "./server"
+port = "5000"
 env = {
   NODE_ENV = "development",
-  MONGODB_URI = "mongodb+srv://nguyenminhdoan0303:minhdoan0303@cluster0.mongodb.net/Project1?retryWrites=true&w=majority"
+  MONGODB_URI = "mongodb+srv://nguyenminhdoan0303:01684485815Tv.@cluster0.fjj6e.mongodb.net/Project1?retryWrites=true&w=majority"
 }
-port = 5000
 
 [[services]]
 name = "frontend"
 dockerfile = "./app/Dockerfile"
 buildRoot = "./app"
+port = "3000"
 env = {
-  VITE_API_ENDPOINT = "https://backend.up.railway.app/api"
+  VITE_API_ENDPOINT = "http://backend:5000/api"
 }
-port = 3000
