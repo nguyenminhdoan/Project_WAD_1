@@ -8,12 +8,42 @@ import mobileAppDevelopment from "../assets/mobile.jpg";
 import uiUxDesign from "../assets/UIUX.jpg";
 import userComment from "../assets/comment1.jpg";
 import userComment2 from "../assets/comment2.jpg";
+import { useSelector } from 'react-redux';
+import logo from "../assets/bugbustersLogo.jpeg"; 
+
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   return (
     <Container maxWidth="lg">
+
+    
+  <Box 
+    display="flex" 
+    flexDirection="column" 
+    alignItems="center" 
+    justifyContent="center" 
+    py={3} 
+    sx={{ bgcolor: "#f0f4f8", borderRadius: "12px", boxShadow: 2, mb: 4 }}
+  >
+    <Box display="flex" alignItems="center" gap={2}>
+      <img 
+        src={logo} 
+        alt="Group Logo" 
+        style={{ height: "60px", borderRadius: "8px" }} 
+      />
+      <Typography variant="h5" fontWeight="bold" color="primary">
+        BugBusters Team
+      </Typography>
+    </Box>
+    <Typography variant="subtitle1" fontStyle="italic" color="textSecondary" mt={1}>
+      Proudly Presents
+    </Typography>
+  </Box>
+
+      
       {/* Hero Section */}
       <Box 
         sx={{
@@ -34,20 +64,37 @@ const HomePage = () => {
         }}
       >
         <Typography variant="h3" fontWeight="bold">
-          Welcome to Bugbusters
+          Welcome to DevHive Solutions
         </Typography>
+
         <Typography variant="h6" sx={{ mt: 2, maxWidth: "600px" }}>
           Innovation, Quality, and Excellence in Every Step.
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{ mt: 3, borderRadius: "8px", fontSize: "16px", padding: "10px 20px" }}
-          onClick={() => navigate("/about")}
-        >
-          Learn More
-        </Button>
+
+        {
+          !isAuthenticated ? (
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{ mt: 3, borderRadius: "8px", fontSize: "16px", padding: "10px 20px" }}
+              onClick={() => navigate("/login")}
+            >
+              Get Started
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{ mt: 3, borderRadius: "8px", fontSize: "16px", padding: "10px 20px" }}
+              onClick={() => navigate("/product-list")}
+            >
+              Go to Product List
+            </Button>
+          )
+        }
+   
       </Box>
 
       {/* About Us Section */}
