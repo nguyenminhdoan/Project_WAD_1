@@ -6,7 +6,7 @@ import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import ProfilePage from '../pages/ProfilePage';
-import ProductListPage from '../pages/ProductListPage';
+import ProductPage from '../pages/ProductPage';
 import DashboardPage from '../pages/DashboardPage';
 
 const AppRoutes = () => {
@@ -31,7 +31,7 @@ const AppRoutes = () => {
                     path="/product-list"
                     element={
                         <ProtectedRoute>
-                            <ProductListPage />
+                            <ProductPage />
                         </ProtectedRoute>
                     }
                 />
@@ -44,7 +44,6 @@ const AppRoutes = () => {
                     }
                 />
 
-                {/* Catch-all route (404) */}
                 <Route path="*" element={<div>Page not found</div>} />
             </Route>
         </Routes>
