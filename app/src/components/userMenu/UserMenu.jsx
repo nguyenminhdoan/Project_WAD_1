@@ -11,8 +11,8 @@ import {
     Divider
 } from '@mui/material';
 import { Logout as LogoutIcon } from '@mui/icons-material';
-
-const API_BASE_URL = 'http://localhost:5000';
+import { API_BASE_URL } from '../../utils/constant.js';
+// const API_BASE_URL = 'http://localhost:5000';
 
 const UserMenu = () => {
     const navigate = useNavigate();
@@ -50,11 +50,11 @@ const UserMenu = () => {
         try {
             await logout().unwrap();
             handleClose();
-            navigate('/login', { replace: true });
+            navigate('/', { replace: true });
         } catch (error) {
             console.error('Logout failed:', error);
             handleClose();
-            navigate('/login', { replace: true });
+            navigate('/', { replace: true });
         }
     };
 
